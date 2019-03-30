@@ -60,6 +60,9 @@ const adminPagesRouter = require("./routes/admin-pages");
 app.use("/", pagesRouter);
 app.use("/admin", adminPagesRouter);
 
+// set global error 
+app.locals.errors = null;
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

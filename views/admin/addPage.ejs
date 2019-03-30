@@ -8,7 +8,7 @@
 <!-- form -->
 <form method="post" action="/admin/add-page" class="mt-4">
     <div class="form-group">
-        <label for="title">Title</label>
+        <label for="title">*Title</label>
         <input type="text" name="title" id="title" class="form-control" placeholder="Title" value="<%= title %>">
     </div>
     <div class="form-group">
@@ -16,8 +16,8 @@
         <input type="text" name="slug" id="slug" class="form-control" placeholder="Slug" value="<%= slug %>">
     </div>
     <div class="form-group">
-        <label for="content">Content</label>
-        <input type="text" name="content" id="content" class="form-control" placeholder="Content" value="<%= content %>">
+        <label for="content">*Content</label>
+        <textarea class="form-control" id="content" name="content" rows="3" placeholder="Content"><%= content %></textarea>
     </div>
     <button type="submit" class="btn btn-outline-success">Save</button>
 </form>

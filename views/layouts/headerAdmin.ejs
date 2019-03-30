@@ -34,5 +34,13 @@
             </ul>
         </div>
     </nav>
-    <div class="container">
+    <div class="container mt-5">
         <%- messages('../message', locals) %>
+        <!-- errors -->
+        <% if(errors) {
+            errors.forEach(error => { %>
+                <div class="alert alert-danger">
+                    <%= error.msg %>
+                </div>
+            <% })
+        } %>
