@@ -4,8 +4,37 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const app = express();
+
+// mongoose
 const mongoose = require("mongoose");
+// get database from mlab
 const { database } = require("./config/database");
+
+// middleware body-parser
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+// middleware express session
+const session = require("express-session");
+app.set("trust proxy", 1); // trust first proxy
+app.use(
+  session({
+    secret: "keyboard cat",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }
+  })
+);
+
+// middleware express-messages
+const connectFlash = require("connect-flash");
+const expressMessages = require("express-messages");
+app.use(connectFlash());
+app.use(function(req, res, next) {
+  res.locals.messages = expressMessages(req, res);
+  next();
+});
 
 // connect to server mlab
 mongoose.connect(database, { useNewUrlParser: true });
