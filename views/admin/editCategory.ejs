@@ -1,0 +1,22 @@
+<!-- header -->
+<% include ../layouts/headerAdmin %>
+<h1>Edit a category</h1>
+<!-- back to all categories -->
+<a href="/admin-categories">
+    <button type="button" class="btn btn-outline-secondary">Back to all categories</button>
+</a>
+<!-- form -->
+<form method="post" action="/admin-categories/edit-category" class="mt-4">
+    <div class="form-group">
+        <label for="title">*Title</label>
+        <input type="text" name="title" id="title" class="form-control" placeholder="Title" value="<%= title %>">
+    </div>
+    <div class="form-group">
+        <label for="slug">Slug</label>
+        <input type="text" name="slug" id="slug" class="form-control" placeholder="Slug" value="<%= slug %>">
+    </div>
+    <input type="hidden" name="_id" value="<%= _id %>">
+    <button type="submit" class="btn btn-outline-success">Save</button>
+</form>
+<!-- footer -->
+<% include ../layouts/footerAdmin %>
