@@ -6,9 +6,15 @@ const { check, body, validationResult } = require("express-validator/check");
 // Page
 const { Page } = require("../models/Page");
 
-/* GET home page. */
-router.get("/", (req, res, next) => {
-  res.render("admin/pages", { title: "Admin page" });
+// get: home page
+router.get("/", async(req, res, next) => {
+  try {
+    // get all pages
+    let pages = await Page.find();
+    res.render("admin/pages", { title: "Admin page", pages });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // get: add page
@@ -65,5 +71,6 @@ router.post(
     }
   }
 );
+
 // export
 module.exports = router;
