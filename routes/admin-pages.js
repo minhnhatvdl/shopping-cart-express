@@ -7,11 +7,11 @@ const { check, body, validationResult } = require("express-validator/check");
 const { Page } = require("../models/Page");
 
 // get: home page
-router.get("/", async(req, res, next) => {
+router.get("/", async (req, res, next) => {
   try {
     // get all pages
     let pages = await Page.find();
-    res.render("admin/pages", { title: "Admin page", pages });
+    res.render("admin/pages", { pages });
   } catch (error) {
     console.log(error);
   }
@@ -71,6 +71,19 @@ router.post(
     }
   }
 );
+// get: edit page
+router.get("/edit-page/:slug", async (req, res, next) => {
+  try {
+    const slugRequest = req.params.slug;
+    const page = await Page.findOne({ slug: slugRequest });
+    if (!page) throw new Error("Page not found");
+    const { _id, title, slug, content } = page;
+    res.render("admin/editPage", { _id, title, slug, content });
+  } catch (error) {
+    req.flash("danger", error + "");
+    res.redirect("/admin");
+  }
+});
 
 // export
 module.exports = router;
