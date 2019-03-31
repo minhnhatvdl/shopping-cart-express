@@ -39,6 +39,7 @@ router.post(
   async (req, res, next) => {
     let { title, slug, content } = req.body;
     try {
+      // validate form
       validationResult(req).throw();
       // set value slug
       slug = slug
@@ -84,6 +85,67 @@ router.get("/edit-page/:slug", async (req, res, next) => {
     res.redirect("/admin");
   }
 });
+
+// post: edit page
+router.post(
+  "/edit-page",
+  [
+    body("title")
+      .not()
+      .isEmpty()
+      .trim()
+      .withMessage("Title must not be empty"),
+    body("content")
+      .not()
+      .isEmpty()
+      .withMessage("Content must not be empty")
+  ],
+  async (req, res, next) => {
+    let { _id, title, slug, content } = req.body;
+    try {
+      // validate form
+      validationResult(req).throw();
+      // set value slug
+      slug = slug
+        .trim()
+        .replace(/\s+/g, "-")
+        .toLowerCase();
+      if (!slug) slug = title.replace(/\s+/g, "-").toLowerCase();
+      // check page
+      const page = await Page.findOne({ _id: { $ne: _id }, slug });
+      if (page) {
+        req.flash("danger", "Slug exists");
+        res.render("admin/editPage", {
+          _id,
+          title,
+          slug,
+          content
+        });
+      } else {
+        const result = await Page.updateOne(
+          { _id },
+          {
+            $set: {
+              title,
+              slug,
+              content
+            }
+          }
+        );
+        req.flash("success", `Page "${title}" has been updated`);
+        res.redirect("/admin");
+      }
+    } catch (errors) {
+      res.render("admin/editPage", {
+        errors: errors.array(),
+        _id,
+        title,
+        slug,
+        content
+      });
+    }
+  }
+);
 
 // export
 module.exports = router;
