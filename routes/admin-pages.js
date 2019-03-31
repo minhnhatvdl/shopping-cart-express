@@ -147,5 +147,18 @@ router.post(
   }
 );
 
+// get: delete page
+router.get("/delete-page/:id", async (req, res, next) => {
+  try {
+    const _id = req.params.id;
+    const result = await Page.deleteOne({ _id });
+    req.flash("success", `Page has been deleted`);
+    res.redirect("/admin");
+  } catch (error) {
+    req.flash("danger", error + "");
+    res.redirect("/admin");
+  }
+});
+
 // export
 module.exports = router;
