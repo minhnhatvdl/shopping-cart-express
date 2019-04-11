@@ -9,6 +9,8 @@ const fs = require("fs-extra");
 const mkdirp = require("mkdirp");
 // Product
 const { Product } = require("../models/Product");
+// Category
+const { Category } = require("../models/Category");
 
 // get: product page
 router.get("/", async (req, res, next) => {
@@ -21,10 +23,22 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-// // get: add category
-// router.get("/add-category", (req, res, next) => {
-//   res.render("admin/addCategory", { title: "", slug: "" });
-// });
+// get: add product
+router.get("/add-product", async (req, res, next) => {
+  try {
+    // get all categories
+    const categories = await Category.find();
+    res.render("admin/addProduct", {
+      title: "",
+      slug: "",
+      description: "",
+      categories,
+      price: ""
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 // // post: add category
 // router.post(
