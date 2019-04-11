@@ -3,6 +3,10 @@ const router = express.Router();
 
 // middleware express-validator
 const { check, body, validationResult } = require("express-validator/check");
+// fs-extra
+const fs = require("fs-extra");
+// mkdirp
+const mkdirp = require("mkdirp");
 // Product
 const { Product } = require("../models/Product");
 

@@ -10,6 +10,10 @@ const mongoose = require("mongoose");
 // get database from mlab
 const { database } = require("./config/database");
 
+// middleware express-fileupload
+const fileUpload = require("express-fileupload");
+app.use(fileUpload());
+
 // middleware body-parser
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -63,7 +67,7 @@ app.use("/admin", adminPagesRouter);
 app.use("/admin-categories", adminCategoriesRouter);
 app.use("/admin-products", adminProductsRouter);
 
-// set global error 
+// set global error
 app.locals.errors = null;
 
 // catch 404 and forward to error handler

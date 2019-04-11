@@ -8,20 +8,38 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>Title</th>
+            <th>Product</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Image</th>
             <th>Edit</th>
             <th>Delete</th>
         </tr>
     </thead>
     <tbody>
         <% products.forEach((product, index) => {
-                const { _id, title, slug } = product; %>
+                const { _id, title, description, category, price, image } = product; %>
             <tr>
                 <td>
                     <%= index + 1 %>
                 </td>
                 <td>
                     <%= title %>
+                </td>
+                <td>
+                    <%= description %>
+                </td>
+                <td>
+                    <%= category %>
+                </td>
+                <td>
+                    <%= price %>
+                </td>
+                <td>
+                    <% if(image) { %>
+                        <img src="/images/<%= category %>/<%= _id %>/<%= image %>" alt="<%= title %>">
+                    <% } %>
                 </td>
                 <td>
                     <a href="/admin-products/edit-product/<%= _id %>">
