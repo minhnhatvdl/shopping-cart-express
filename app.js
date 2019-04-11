@@ -56,10 +56,12 @@ app.use(express.static(path.join(__dirname, "public")));
 const pagesRouter = require("./routes/pages");
 const adminPagesRouter = require("./routes/admin-pages");
 const adminCategoriesRouter = require("./routes/admin-categories");
+const adminProductsRouter = require("./routes/admin-products");
 
 app.use("/", pagesRouter);
 app.use("/admin", adminPagesRouter);
 app.use("/admin-categories", adminCategoriesRouter);
+app.use("/admin-products", adminProductsRouter);
 
 // set global error 
 app.locals.errors = null;
