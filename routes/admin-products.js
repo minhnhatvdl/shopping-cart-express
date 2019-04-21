@@ -32,6 +32,7 @@ router.get("/add-product", async (req, res, next) => {
       title: "",
       slug: "",
       description: "",
+      category: -1,
       categories,
       price: ""
     });
@@ -130,73 +131,75 @@ router.post(
   }
 );
 
-// // get: edit category
-// router.get("/edit-category/:id", async (req, res, next) => {
-//   try {
-//     const idRequest = req.params.id;
-//     const category = await Category.findOne({ _id: idRequest });
-//     if (!category) throw new Error("Category not found");
-//     const { _id, title, slug } = category;
-//     res.render("admin/editCategory", { _id, title, slug });
-//   } catch (error) {
-//     req.flash("danger", error + "");
-//     res.redirect("/admin-categories");
-//   }
-// });
+// get: edit product
+router.get("/edit-product/:id", async (req, res, next) => {
+  try {
+    const idRequest = req.params.id;
+    const product = await Product.findOne({ _id: idRequest });
+    if (!product) throw new Error("Product not found");
+    // get all categories
+    const categories = await Category.find();
+    const { _id, title, slug, description, category, price, image } = product;
+    res.render("admin/editProduct", { _id, title, slug, description, category, categories, price, image });
+  } catch (error) {
+    req.flash("danger", error + "");
+    res.redirect("/admin-products");
+  }
+});
 
-// // post: edit category
-// router.post(
-//   "/edit-category",
-//   [
-//     body("title")
-//       .not()
-//       .isEmpty()
-//       .trim()
-//       .withMessage("Title must not be empty")
-//   ],
-//   async (req, res, next) => {
-//     let { _id, title, slug } = req.body;
-//     try {
-//       // validate form
-//       validationResult(req).throw();
-//       // set value slug
-//       slug = slug
-//         .trim()
-//         .replace(/\s+/g, "-")
-//         .toLowerCase();
-//       if (!slug) slug = title.replace(/\s+/g, "-").toLowerCase();
-//       // check category
-//       const category = await Category.findOne({ _id: { $ne: _id }, slug });
-//       if (category) {
-//         req.flash("danger", "Slug exists");
-//         res.render("admin/editCategory", {
-//           _id,
-//           title,
-//           slug
-//         });
-//       } else {
-//         const result = await Category.updateOne(
-//           { _id },
-//           {
-//             $set: {
-//               title,
-//               slug
-//             }
-//           }
-//         );
-//         req.flash("success", `Category "${title}" has been updated`);
-//         res.redirect("/admin-categories");
-//       }
-//     } catch (errors) {
-//       res.render("admin/editPage", {
-//         errors: errors.array(),
-//         _id,
-//         title,
-//         slug
-//       });
-//     }
-//   }
-// );
+// post: edit category
+router.post(
+  "/edit-category",
+  [
+    body("title")
+      .not()
+      .isEmpty()
+      .trim()
+      .withMessage("Title must not be empty")
+  ],
+  async (req, res, next) => {
+    let { _id, title, slug } = req.body;
+    try {
+      // validate form
+      validationResult(req).throw();
+      // set value slug
+      slug = slug
+        .trim()
+        .replace(/\s+/g, "-")
+        .toLowerCase();
+      if (!slug) slug = title.replace(/\s+/g, "-").toLowerCase();
+      // check category
+      const category = await Category.findOne({ _id: { $ne: _id }, slug });
+      if (category) {
+        req.flash("danger", "Slug exists");
+        res.render("admin/editCategory", {
+          _id,
+          title,
+          slug
+        });
+      } else {
+        const result = await Category.updateOne(
+          { _id },
+          {
+            $set: {
+              title,
+              slug
+            }
+          }
+        );
+        req.flash("success", `Category "${title}" has been updated`);
+        res.redirect("/admin-categories");
+      }
+    } catch (errors) {
+      res.render("admin/editPage", {
+        errors: errors.array(),
+        _id,
+        title,
+        slug
+      });
+    }
+  }
+);
 
 // // get: delete category
 // router.get("/delete-category/:id", async (req, res, next) => {

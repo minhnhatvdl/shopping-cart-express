@@ -24,10 +24,10 @@
         <select class="form-control" name="category" id="category">
             <option value="-1">Select a category</option>
             <% categories.forEach(e => { %>
-                <option value="<%= e.slug %>" selected="<%= e.slug === category %>">
+                <option value="<%= e.slug %>">
                     <%= e.title %>
                 </option>
-            <% }) %>
+                <% }) %>
         </select>
     </div>
     <div class="form-group">
@@ -36,10 +36,24 @@
     </div>
     <div class="form-group">
         <label for="image">Image</label>
-        <input type="file" name="image" id="image" class="form-control">
-        <img src="#" alt="" id="imagePreview">
+        <input type="file" name="image" id="image" class="form-control" onChange="readURL(this)">
+        <img src="#" alt="" id="imagePreview" width="200px">
     </div>
     <button type="submit" class="btn btn-outline-success">Save</button>
 </form>
 <!-- footer -->
 <% include ../layouts/footerAdmin %>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script>
+    // show an image before uploading
+    function readURL(input) {
+        console.log(input.files);
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#imagePreview').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
