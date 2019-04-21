@@ -65,7 +65,6 @@ router.post(
   ],
   async (req, res, next) => {
     let { title, slug, description, category, price } = req.body;
-    console.log(category);
     // get name of image
     const imageName = req.files? req.files.image.name: "";
     // check type of image
@@ -147,18 +146,42 @@ router.get("/edit-product/:id", async (req, res, next) => {
   }
 });
 
-// post: edit category
+// post: edit product
 router.post(
-  "/edit-category",
+  "/edit-product",
   [
     body("title")
-      .not()
-      .isEmpty()
-      .trim()
-      .withMessage("Title must not be empty")
+    .not()
+    .isEmpty()
+    .trim()
+    .withMessage("Title must not be empty"),
+  body("description")
+    .not()
+    .isEmpty()
+    .trim()
+    .withMessage("Description must not be empty"),
+  body("category")
+    .not()
+    .equals("-1")
+    .withMessage("Category must be selected"),
+  body("price")
+    .isNumeric()
+    .withMessage("Price must be numeric")
   ],
   async (req, res, next) => {
-    let { _id, title, slug } = req.body;
+    let { _id, title, slug, description, category, price, currentImageName } = req.body;
+    // get name of image
+    const imageName = req.files? req.files.image.name: currentImageName;
+    // check type of image
+    let errorImage = {error: 0};
+    if(req.files) {
+      const imageType = req.files.image.mimetype;
+      if(['image/gif', 'image/jpeg', 'image/png'].indexOf(imageType) === -1) {
+        errorImage = {error: 1, param: 'image', msg: 'Type of image is not correct'};
+      }
+    }
+    // get all categories
+    const categories = await Category.find();
     try {
       // validate form
       validationResult(req).throw();
@@ -168,51 +191,80 @@ router.post(
         .replace(/\s+/g, "-")
         .toLowerCase();
       if (!slug) slug = title.replace(/\s+/g, "-").toLowerCase();
-      // check category
-      const category = await Category.findOne({ _id: { $ne: _id }, slug });
-      if (category) {
+      // check product
+      const product = await Product.findOne({ _id: { $ne: _id }, slug });
+      if (product) {
         req.flash("danger", "Slug exists");
-        res.render("admin/editCategory", {
+        res.render("admin/editProduct", {
           _id,
           title,
-          slug
+          slug,
+          description,
+          category,
+          categories,
+          price,
+          image: imageName
         });
       } else {
-        const result = await Category.updateOne(
+        // change a link of image when uploading a new image
+        if(req.files) {
+          // delete exist image
+          await fs.remove(`public/images/${_id}`);
+          // create a link of image
+          // link of image: public/images/productId/imageName
+          await mkdirp(`public/images/${_id}`);
+          // move image to the created folder
+          const image = req.files.image;
+          await image.mv(`public/images/${_id}/${imageName}`);
+        }
+        const result = await Product.updateOne(
           { _id },
           {
             $set: {
               title,
-              slug
+              slug,
+              description,
+              category,
+              price,
+              image: imageName
             }
           }
         );
-        req.flash("success", `Category "${title}" has been updated`);
-        res.redirect("/admin-categories");
+        req.flash("success", `Product "${title}" has been updated`);
+        res.redirect("/admin-products");
       }
     } catch (errors) {
-      res.render("admin/editPage", {
-        errors: errors.array(),
-        _id,
+      // set list of errors
+      let listError = errors.array();
+      if(errorImage.error === 1) listError = [...listError, errorImage];
+      res.render("admin/addProduct", {
+        errors: listError,
         title,
-        slug
+        slug,
+        description,
+        category,
+        categories,
+        price
       });
     }
   }
 );
 
-// // get: delete category
-// router.get("/delete-category/:id", async (req, res, next) => {
-//   try {
-//     const _id = req.params.id;
-//     const result = await Category.deleteOne({ _id });
-//     req.flash("success", `Category has been deleted`);
-//     res.redirect("/admin-categories");
-//   } catch (error) {
-//     req.flash("danger", error + "");
-//     res.redirect("/admin-categories");
-//   }
-// });
+// get: delete product
+router.get("/delete-product/:id", async (req, res, next) => {
+  try {
+    const _id = req.params.id;
+    // delete image
+    await fs.remove(`public/images/${_id}`);
+    // delete a product
+    const result = await Product.deleteOne({ _id });
+    req.flash("success", `Product has been deleted`);
+    res.redirect("/admin-products");
+  } catch (error) {
+    req.flash("danger", error + "");
+    res.redirect("/admin-products");
+  }
+});
 
 // export
 module.exports = router;

@@ -1,12 +1,14 @@
 <!-- header -->
 <% include ../layouts/headerAdmin %>
-<h1>Add a new product</h1>
+<h1>Edit a product</h1>
 <!-- back to all products -->
 <a href="/admin-products">
     <button type="button" class="btn btn-outline-secondary">Back to all products</button>
 </a>
 <!-- form -->
-<form method="post" action="/admin-products/add-product" class="mt-4" enctype="multipart/form-data">
+<form method="post" action="/admin-products/edit-product" class="mt-4" enctype="multipart/form-data">
+    <input type="hidden" name="_id" value="<%= _id %>">
+    <input type="hidden" name="currentImageName" value="<%= image %>">
     <div class="form-group">
         <label for="title">*Product</label>
         <input type="text" name="title" id="title" class="form-control" placeholder="Product" value="<%= title %>">
@@ -40,7 +42,13 @@
     <div class="form-group">
         <label for="image">Image</label>
         <input type="file" name="image" id="image" class="form-control" onChange="readURL(this)">
-        <img src="#" alt="" id="imagePreview" width="200px">
+        <img 
+            <% if(image) { %>
+                src="/images/<%= _id %>/<%= image %>"
+            <% } else { %>
+                src="#"
+            <% } %>
+        alt="" id="imagePreview" width="200px">
     </div>
     <button type="submit" class="btn btn-outline-success">Save</button>
 </form>
