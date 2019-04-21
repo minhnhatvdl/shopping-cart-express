@@ -40,50 +40,95 @@ router.get("/add-product", async (req, res, next) => {
   }
 });
 
-// // post: add category
-// router.post(
-//   "/add-category",
-//   [
-//     body("title")
-//       .not()
-//       .isEmpty()
-//       .trim()
-//       .withMessage("Title must not be empty")
-//   ],
-//   async (req, res, next) => {
-//     let { title, slug } = req.body;
-//     try {
-//       // validate form
-//       validationResult(req).throw();
-//       // set value slug
-//       slug = slug
-//         .trim()
-//         .replace(/\s+/g, "-")
-//         .toLowerCase();
-//       if (!slug) slug = title.replace(/\s+/g, "-").toLowerCase();
-//       // check in database if slug of category exists
-//       const category = await Category.findOne({ slug });
-//       if (category) {
-//         req.flash("danger", "Slug exists");
-//         res.render("admin/addCategory", {
-//           title,
-//           slug
-//         });
-//       } else {
-//         const newCategory = new Category({ title, slug });
-//         const result = await newCategory.save();
-//         req.flash("success", "A new category has been created");
-//         res.redirect("/admin-categories");
-//       }
-//     } catch (errors) {
-//       res.render("admin/addCategory", {
-//         errors: errors.array(),
-//         title,
-//         slug
-//       });
-//     }
-//   }
-// );
+// post: add product
+router.post(
+  "/add-product",
+  [
+    body("title")
+      .not()
+      .isEmpty()
+      .trim()
+      .withMessage("Title must not be empty"),
+    body("description")
+      .not()
+      .isEmpty()
+      .trim()
+      .withMessage("Description must not be empty"),
+    body("category")
+      .not()
+      .equals("-1")
+      .withMessage("Category must be selected"),
+    body("price")
+      .isNumeric()
+      .withMessage("Price must be numeric")
+  ],
+  async (req, res, next) => {
+    let { title, slug, description, category, price } = req.body;
+    console.log(category);
+    // get name of image
+    const imageName = req.files? req.files.image.name: "";
+    // check type of image
+    let errorImage = {error: 0};
+    if(req.files) {
+      const imageType = req.files.image.mimetype;
+      if(['image/gif', 'image/jpeg', 'image/png'].indexOf(imageType) === -1) {
+        errorImage = {error: 1, param: 'image', msg: 'Type of image is not correct'};
+      }
+    }
+    // get all categories
+    const categories = await Category.find();
+    try {
+      // validate form
+      validationResult(req).throw();
+      // set value slug
+      slug = slug
+        .trim()
+        .replace(/\s+/g, "-")
+        .toLowerCase();
+      if (!slug) slug = title.replace(/\s+/g, "-").toLowerCase();
+      // check in database if slug of product exists
+      const product = await Product.findOne({ slug });
+      if (product) {
+        req.flash("danger", "Slug exists");
+        res.render("admin/addProduct", {
+          title,
+          slug,
+          description,
+          category,
+          categories,
+          price
+        });
+      } else {
+        const newProduct = new Product({ title, slug, description, category, price, image: imageName });
+        if(imageName) {
+          // create a link of image
+          // link of image: public/images/productId/imageName
+          await mkdirp(`public/images/${newProduct._id}`);
+          // move image to the created folder
+          const image = req.files.image;
+          await image.mv(`public/images/${newProduct._id}/${imageName}`);
+        }
+        // save a product
+        const result = await newProduct.save();
+        req.flash("success", "A new product has been created");
+        res.redirect("/admin-products");
+      }
+    } catch (errors) {
+      // set list of errors
+      let listError = errors.array();
+      if(errorImage.error === 1) listError = [...listError, errorImage];
+      res.render("admin/addProduct", {
+        errors: listError,
+        title,
+        slug,
+        description,
+        category,
+        categories,
+        price
+      });
+    }
+  }
+);
 
 // // get: edit category
 // router.get("/edit-category/:id", async (req, res, next) => {

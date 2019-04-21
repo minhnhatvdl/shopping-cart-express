@@ -4,7 +4,7 @@
     <button type="button" class="btn btn-outline-primary">Add a new product</button>
     <% if(products.length > 0) { %>
 </a>
-<table class="table table-striped mt-4">
+<table class="table table-striped mt-4 text-center">
     <thead>
         <tr>
             <th>#</th>
@@ -38,7 +38,7 @@
                 </td>
                 <td>
                     <% if(image) { %>
-                        <img src="/images/<%= category %>/<%= _id %>/<%= image %>" alt="<%= title %>">
+                        <img src="/images/<%= _id %>/<%= image %>" alt="<%= title %>" width="100px">
                     <% } %>
                 </td>
                 <td>
